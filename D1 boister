@@ -1,231 +1,297 @@
--- 🚀 D1 BOOSTER🚀 FINAL FIXED VERSION
--- Game: Steal a Brainrot
--- KEY: 2026FREE
+--// D1 BOOSTER🚀
+--// Educational / Private Server Use Only
 
--------------------------
--- 🔐 KEY SYSTEM
--------------------------
-local REQUIRED_KEY = "2026FREE"
+if game.CoreGui:FindFirstChild("D1_GUI") then
+    game.CoreGui.D1_GUI:Destroy()
+end
+
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local player = Players.LocalPlayer
+local RS = game:GetService("RunService")
+local LP = Players.LocalPlayer
+local Mouse = LP:GetMouse()
 
-local KeyGui = Instance.new("ScreenGui", game.CoreGui)
-local KF = Instance.new("Frame", KeyGui)
-KF.Size = UDim2.new(0,300,0,200)
-KF.Position = UDim2.new(0.5,-150,0.5,-100)
-KF.BackgroundColor3 = Color3.fromRGB(0,0,0)
-KF.BorderSizePixel = 0
-KF.Active = true
-KF.Draggable = true
-Instance.new("UICorner",KF)
-
-local KT = Instance.new("TextLabel",KF)
-KT.Size = UDim2.new(1,0,0,45)
-KT.Text = "🚀 D1 BOOSTER🚀"
-KT.BackgroundTransparency = 1
-KT.TextColor3 = Color3.fromRGB(255,255,255)
-KT.Font = Enum.Font.GothamBlack
-KT.TextSize = 18
-
-local KB = Instance.new("TextBox",KF)
-KB.Size = UDim2.new(0.9,0,0,40)
-KB.Position = UDim2.new(0.05,0,0,70)
-KB.PlaceholderText = "Enter Key"
-KB.Text = ""
-KB.BackgroundColor3 = Color3.fromRGB(10,10,10)
-KB.TextColor3 = Color3.fromRGB(255,255,255)
-KB.BorderSizePixel = 0
-Instance.new("UICorner",KB)
-
-local KBTN = Instance.new("TextButton",KF)
-KBTN.Size = UDim2.new(0.9,0,0,40)
-KBTN.Position = UDim2.new(0.05,0,0,130)
-KBTN.Text = "UNLOCK"
-KBTN.BackgroundColor3 = Color3.fromRGB(10,10,10)
-KBTN.TextColor3 = Color3.fromRGB(255,255,255)
-KBTN.BorderSizePixel = 0
-Instance.new("UICorner",KBTN)
-
-KBTN.MouseButton1Click:Connect(function()
-    if KB.Text == REQUIRED_KEY then
-        KeyGui:Destroy()
-    else
-        KBTN.Text = "WRONG KEY"
-        task.wait(1)
-        KBTN.Text = "UNLOCK"
-    end
-end)
-
-repeat task.wait() until not KeyGui.Parent
-
--------------------------
--- PLAYER SYSTEM
--------------------------
-local char, hum, hrp
-local function setupChar(c)
-    char = c
-    hum = c:WaitForChild("Humanoid")
-    hrp = c:WaitForChild("HumanoidRootPart")
-end
-setupChar(player.Character or player.CharacterAdded:Wait())
-player.CharacterAdded:Connect(setupChar)
-
--------------------------
--- STATES
--------------------------
-local speedOn=false
-local jumpOn=false
-local gravityOn=false
-local infiniteJumpOn=false
-local autoStealOn=false
-
--- Steal a Brainrot tuned values
+--// SETTINGS
 local speedValue = 30
 local jumpValue = 120
 local gravityValue = 40
+local KEY = "2026FREE"
 
--------------------------
--- GUI
--------------------------
+--// STATES
+local speedOn=false
+local jumpOn=false
+local gravityOn=false
+local infJump=false
+local espOn=false
+local autoSteal=false
+local aimbotOn=false
+
+local connections = {}
+
+--// GUI
 local Gui = Instance.new("ScreenGui", game.CoreGui)
+Gui.Name = "D1_GUI"
+
 local Main = Instance.new("Frame",Gui)
-Main.Size=UDim2.new(0,340,0,420)
-Main.Position=UDim2.new(0.05,0,0.2,0)
-Main.BackgroundColor3=Color3.fromRGB(0,0,0)
+Main.Size = UDim2.new(0,360,0,520)
+Main.Position = UDim2.new(0.05,0,0.15,0)
+Main.BackgroundColor3 = Color3.fromRGB(8,8,8)
+Main.BorderSizePixel = 0
 Main.Active=true
 Main.Draggable=true
-Instance.new("UICorner",Main)
+Instance.new("UICorner",Main).CornerRadius=UDim.new(0,18)
 
-local Title=Instance.new("TextLabel",Main)
-Title.Size=UDim2.new(1,0,0,40)
-Title.Text="🚀 D1 BOOSTER🚀"
+local stroke = Instance.new("UIStroke",Main)
+stroke.Color=Color3.fromRGB(255,255,255)
+stroke.Transparency=0.3
+stroke.Thickness=1.5
+
+-- Title
+local TitleBar = Instance.new("Frame",Main)
+TitleBar.Size=UDim2.new(1,0,0,55)
+TitleBar.BackgroundColor3=Color3.fromRGB(12,12,12)
+TitleBar.BorderSizePixel=0
+Instance.new("UICorner",TitleBar).CornerRadius=UDim.new(0,18)
+
+local Title = Instance.new("TextLabel",TitleBar)
+Title.Size=UDim2.new(1,0,1,0)
 Title.BackgroundTransparency=1
-Title.TextColor3=Color3.fromRGB(255,255,255)
+Title.Text="🚀 D1 BOOSTER🚀"
 Title.Font=Enum.Font.GothamBlack
-Title.TextSize=18
+Title.TextSize=20
+Title.TextColor3=Color3.new(1,1,1)
 
+-- Close
+local Close = Instance.new("TextButton",TitleBar)
+Close.Size=UDim2.new(0,40,0,40)
+Close.Position=UDim2.new(1,-45,0.1,0)
+Close.Text="X"
+Close.BackgroundColor3=Color3.fromRGB(20,20,20)
+Close.TextColor3=Color3.new(1,1,1)
+Close.Font=Enum.Font.GothamBold
+Close.TextSize=18
+Instance.new("UICorner",Close).CornerRadius=UDim.new(0,10)
+
+Close.MouseButton1Click:Connect(function()
+    Gui:Destroy()
+    for _,c in pairs(connections) do pcall(function() c:Disconnect() end) end
+end)
+
+-- Button maker
 local function makeBtn(text,y)
     local b=Instance.new("TextButton",Main)
-    b.Size=UDim2.new(0.9,0,0,38)
+    b.Size=UDim2.new(0.9,0,0,42)
     b.Position=UDim2.new(0.05,0,0,y)
     b.Text=text
-    b.BackgroundColor3=Color3.fromRGB(10,10,10)
-    b.TextColor3=Color3.fromRGB(255,255,255)
+    b.BackgroundColor3=Color3.fromRGB(15,15,15)
+    b.TextColor3=Color3.new(1,1,1)
     b.BorderSizePixel=0
-    Instance.new("UICorner",b)
+    b.Font=Enum.Font.GothamBold
+    b.TextSize=14
+    Instance.new("UICorner",b).CornerRadius=UDim.new(0,12)
     return b
 end
 
-local SpeedBtn=makeBtn("Speed",50)
-local JumpBtn=makeBtn("Jump",95)
-local GravBtn=makeBtn("Gravity",140)
-local InfBtn=makeBtn("Infinite Jump",185)
-local StealBtn=makeBtn("Auto Steal",230)
-
--------------------------
--- TOGGLES
--------------------------
-SpeedBtn.MouseButton1Click:Connect(function()
-    speedOn = not speedOn
-    SpeedBtn.BackgroundColor3 = speedOn and Color3.fromRGB(0,255,0) or Color3.fromRGB(10,10,10)
-end)
-
-JumpBtn.MouseButton1Click:Connect(function()
-    jumpOn = not jumpOn
-    JumpBtn.BackgroundColor3 = jumpOn and Color3.fromRGB(0,255,0) or Color3.fromRGB(10,10,10)
-end)
-
-GravBtn.MouseButton1Click:Connect(function()
-    gravityOn = not gravityOn
-    GravBtn.BackgroundColor3 = gravityOn and Color3.fromRGB(0,255,0) or Color3.fromRGB(10,10,10)
-end)
-
-InfBtn.MouseButton1Click:Connect(function()
-    infiniteJumpOn = not infiniteJumpOn
-    InfBtn.BackgroundColor3 = infiniteJumpOn and Color3.fromRGB(0,255,0) or Color3.fromRGB(10,10,10)
-end)
-
-StealBtn.MouseButton1Click:Connect(function()
-    autoStealOn = not autoStealOn
-    StealBtn.BackgroundColor3 = autoStealOn and Color3.fromRGB(0,255,0) or Color3.fromRGB(10,10,10)
-end)
-
--------------------------
--- 🔁 FORCE APPLY LOOP (REAL FIX)
--------------------------
-RunService.Heartbeat:Connect(function()
-    if hum then
-        hum.WalkSpeed = speedOn and speedValue or 16
-        hum.JumpPower = jumpOn and jumpValue or 50
-    end
-    workspace.Gravity = gravityOn and gravityValue or 196.2
-end)
-
--------------------------
--- INFINITE JUMP
--------------------------
-UIS.JumpRequest:Connect(function()
-    if infiniteJumpOn and hum then
-        hum:ChangeState(Enum.HumanoidStateType.Jumping)
-    end
-end)
-
--------------------------
--- 🧠 AUTO STEAL (REMOTE EVENT VERSION)
--------------------------
-local stealRange = 15
-
--- find all RemoteEvents
-local RemoteEvents = {}
-for _,v in ipairs(ReplicatedStorage:GetDescendants()) do
-    if v:IsA("RemoteEvent") then
-        table.insert(RemoteEvents, v)
+local function toggleEffect(btn,state)
+    if state then
+        btn.BackgroundColor3=Color3.fromRGB(0,255,140)
+        btn.TextColor3=Color3.new(0,0,0)
+    else
+        btn.BackgroundColor3=Color3.fromRGB(15,15,15)
+        btn.TextColor3=Color3.new(1,1,1)
     end
 end
 
-task.spawn(function()
-    while true do
-        if autoStealOn and hrp then
-            for _,obj in ipairs(workspace:GetDescendants()) do
-                if obj:IsA("BasePart") then
-                    if (hrp.Position - obj.Position).Magnitude <= stealRange then
-                        
-                        -- Fire all remotes (server pickup)
-                        for _,remote in ipairs(RemoteEvents) do
-                            pcall(function()
-                                remote:FireServer(obj)
-                                remote:FireServer(obj.Name)
-                                remote:FireServer(obj.Parent)
-                            end)
-                        end
+-- Buttons
+local SpeedBtn = makeBtn("⚡ Speed",70)
+local JumpBtn = makeBtn("🦘 Jump",120)
+local GravBtn = makeBtn("🌍 Gravity",170)
+local InfJumpBtn = makeBtn("♾ Infinite Jump",220)
+local ESPBtn = makeBtn("👁 ESP",270)
+local AutoStealBtn = makeBtn("🤖 Auto Steal",320)
+local AimbotBtn = makeBtn("🎯 Aimbot (Web/Laser)",370)
 
-                        -- ProximityPrompt fallback
-                        for _,pp in ipairs(obj:GetDescendants()) do
-                            if pp:IsA("ProximityPrompt") then
-                                pcall(function() fireproximityprompt(pp) end)
-                            end
-                        end
+-- Character handler
+local function getChar()
+    return LP.Character or LP.CharacterAdded:Wait()
+end
 
-                        -- ClickDetector fallback
-                        for _,cd in ipairs(obj:GetDescendants()) do
-                            if cd:IsA("ClickDetector") then
-                                pcall(function() fireclickdetector(cd) end)
-                            end
-                        end
+local function getHum()
+    return getChar():WaitForChild("Humanoid")
+end
 
-                        -- Touch fallback
-                        pcall(function()
-                            firetouchinterest(hrp,obj,0)
-                            firetouchinterest(hrp,obj,1)
-                        end)
-
-                    end
-                end
-            end
-        end
-        task.wait(0.25)
+-- Speed
+SpeedBtn.MouseButton1Click:Connect(function()
+    speedOn=not speedOn
+    toggleEffect(SpeedBtn,speedOn)
+    if speedOn then
+        getHum().WalkSpeed=speedValue
+    else
+        getHum().WalkSpeed=16
     end
 end)
+
+-- Jump
+JumpBtn.MouseButton1Click:Connect(function()
+    jumpOn=not jumpOn
+    toggleEffect(JumpBtn,jumpOn)
+    if jumpOn then
+        getHum().JumpPower=jumpValue
+    else
+        getHum().JumpPower=50
+    end
+end)
+
+-- Gravity
+GravBtn.MouseButton1Click:Connect(function()
+    gravityOn=not gravityOn
+    toggleEffect(GravBtn,gravityOn)
+    if gravityOn then
+        workspace.Gravity=gravityValue
+    else
+        workspace.Gravity=196.2
+    end
+end)
+
+-- Infinite Jump
+InfJumpBtn.MouseButton1Click:Connect(function()
+    infJump=not infJump
+    toggleEffect(InfJumpBtn,infJump)
+end)
+
+connections[#connections+1]=UIS.JumpRequest:Connect(function()
+    if infJump then
+        getHum():ChangeState(Enum.HumanoidStateType.Jumping)
+    end
+end)
+
+-- ESP
+local espBoxes={}
+local function clearESP()
+    for _,v in pairs(espBoxes) do pcall(function() v:Destroy() end) end
+    espBoxes={}
+end
+
+ESPBtn.MouseButton1Click:Connect(function()
+    espOn=not espOn
+    toggleEffect(ESPBtn,espOn)
+    if not espOn then clearESP() end
+end)
+
+connections[#connections+1]=RS.RenderStepped:Connect(function()
+    if not espOn then return end
+    clearESP()
+    for _,plr in pairs(Players:GetPlayers()) do
+        if plr~=LP and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            local box=Instance.new("BoxHandleAdornment",Gui)
+            box.Size=Vector3.new(4,6,2)
+            box.Adornee=plr.Character.HumanoidRootPart
+            box.Color3=Color3.fromRGB(0,255,140)
+            box.AlwaysOnTop=true
+            box.ZIndex=5
+            box.Transparency=0.6
+            espBoxes[#espBoxes+1]=box
+        end
+    end
+end)
+
+-- Auto Steal
+connections[#connections+1]=RS.Heartbeat:Connect(function()
+    if not autoSteal then return end
+    local char=getChar()
+    local hrp=char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    for _,v in pairs(workspace:GetDescendants()) do
+        if v.Name:lower():find("brainrot") and v:IsA("BasePart") then
+            if (v.Position-hrp.Position).Magnitude<8 then
+                firetouchinterest(hrp,v,0)
+                firetouchinterest(hrp,v,1)
+            end
+        end
+    end
+end)
+
+AutoStealBtn.MouseButton1Click:Connect(function()
+    autoSteal=not autoSteal
+    toggleEffect(AutoStealBtn,autoSteal)
+end)
+
+-- AIMBOT (WebSling + Laser)
+local function getClosestPlayer()
+    local closest=nil
+    local dist=math.huge
+    for _,p in pairs(Players:GetPlayers()) do
+        if p~=LP and p.Character and p.Character:FindFirstChild("Head") then
+            local mag=(p.Character.Head.Position-LP.Character.Head.Position).Magnitude
+            if mag<dist then
+                dist=mag
+                closest=p
+            end
+        end
+    end
+    return closest
+end
+
+connections[#connections+1]=RS.RenderStepped:Connect(function()
+    if not aimbotOn then return end
+    local tool=LP.Character and LP.Character:FindFirstChildOfClass("Tool")
+    if tool and (tool.Name:lower():find("web") or tool.Name:lower():find("laser")) then
+        local target=getClosestPlayer()
+        if target and target.Character and target.Character:FindFirstChild("Head") then
+            local cam=workspace.CurrentCamera
+            cam.CFrame=CFrame.new(cam.CFrame.Position,target.Character.Head.Position)
+        end
+    end
+end)
+
+AimbotBtn.MouseButton1Click:Connect(function()
+    aimbotOn=not aimbotOn
+    toggleEffect(AimbotBtn,aimbotOn)
+end)
+
+-- Respawn fix
+LP.CharacterAdded:Connect(function()
+    task.wait(1)
+    if speedOn then getHum().WalkSpeed=speedValue end
+    if jumpOn then getHum().JumpPower=jumpValue end
+    if gravityOn then workspace.Gravity=gravityValue end
+end)
+
+-- KEY SYSTEM
+local KeyFrame=Instance.new("Frame",Gui)
+KeyFrame.Size=UDim2.new(0,300,0,160)
+KeyFrame.Position=UDim2.new(0.35,0,0.35,0)
+KeyFrame.BackgroundColor3=Color3.fromRGB(10,10,10)
+Instance.new("UICorner",KeyFrame).CornerRadius=UDim.new(0,14)
+
+local KeyBox=Instance.new("TextBox",KeyFrame)
+KeyBox.Size=UDim2.new(0.9,0,0,45)
+KeyBox.Position=UDim2.new(0.05,0,0.25,0)
+KeyBox.PlaceholderText="Enter Key"
+KeyBox.Text=""
+KeyBox.BackgroundColor3=Color3.fromRGB(20,20,20)
+KeyBox.TextColor3=Color3.new(1,1,1)
+KeyBox.Font=Enum.Font.GothamBold
+KeyBox.TextSize=14
+Instance.new("UICorner",KeyBox).CornerRadius=UDim.new(0,10)
+
+local Submit=Instance.new("TextButton",KeyFrame)
+Submit.Size=UDim2.new(0.9,0,0,40)
+Submit.Position=UDim2.new(0.05,0,0.6,0)
+Submit.Text="UNLOCK"
+Submit.BackgroundColor3=Color3.fromRGB(0,255,140)
+Submit.TextColor3=Color3.new(0,0,0)
+Submit.Font=Enum.Font.GothamBlack
+Submit.TextSize=14
+Instance.new("UICorner",Submit).CornerRadius=UDim.new(0,10)
+
+Submit.MouseButton1Click:Connect(function()
+    if KeyBox.Text==KEY then
+        KeyFrame:Destroy()
+        Main.Visible=true
+    else
+        KeyBox.Text="WRONG KEY"
+    end
+end)
+
+Main.Visible=false
