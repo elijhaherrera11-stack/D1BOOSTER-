@@ -1,4 +1,5 @@
--- 🚀 D1 BOOSTER🚀
+-- 🚀 D1 BOOSTER🚀 FINAL FIXED VERSION
+-- Game: Steal a Brainrot
 -- KEY: 2026FREE
 
 -------------------------
@@ -8,11 +9,10 @@ local REQUIRED_KEY = "2026FREE"
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 
 local KeyGui = Instance.new("ScreenGui", game.CoreGui)
-KeyGui.Name = "D1_KEY"
-
 local KF = Instance.new("Frame", KeyGui)
 KF.Size = UDim2.new(0,300,0,200)
 KF.Position = UDim2.new(0.5,-150,0.5,-100)
@@ -20,7 +20,7 @@ KF.BackgroundColor3 = Color3.fromRGB(0,0,0)
 KF.BorderSizePixel = 0
 KF.Active = true
 KF.Draggable = true
-Instance.new("UICorner",KF).CornerRadius = UDim.new(0,12)
+Instance.new("UICorner",KF)
 
 local KT = Instance.new("TextLabel",KF)
 KT.Size = UDim2.new(1,0,0,45)
@@ -62,43 +62,42 @@ end)
 repeat task.wait() until not KeyGui.Parent
 
 -------------------------
--- MAIN SYSTEM
+-- PLAYER SYSTEM
 -------------------------
-local char = player.Character or player.CharacterAdded:Wait()
-local hum = char:WaitForChild("Humanoid")
-local hrp = char:WaitForChild("HumanoidRootPart")
-
-player.CharacterAdded:Connect(function(c)
+local char, hum, hrp
+local function setupChar(c)
     char = c
     hum = c:WaitForChild("Humanoid")
     hrp = c:WaitForChild("HumanoidRootPart")
-end)
+end
+setupChar(player.Character or player.CharacterAdded:Wait())
+player.CharacterAdded:Connect(setupChar)
 
--- States
+-------------------------
+-- STATES
+-------------------------
 local speedOn=false
 local jumpOn=false
 local gravityOn=false
-local espOn=false
 local infiniteJumpOn=false
 local autoStealOn=false
 
-local speedValue=16
-local jumpValue=50
-local gravityValue=196.2
+-- Steal a Brainrot tuned values
+local speedValue = 30
+local jumpValue = 120
+local gravityValue = 40
 
 -------------------------
 -- GUI
 -------------------------
 local Gui = Instance.new("ScreenGui", game.CoreGui)
-Gui.Name="D1_GUI"
-
 local Main = Instance.new("Frame",Gui)
 Main.Size=UDim2.new(0,340,0,420)
 Main.Position=UDim2.new(0.05,0,0.2,0)
 Main.BackgroundColor3=Color3.fromRGB(0,0,0)
 Main.Active=true
 Main.Draggable=true
-Instance.new("UICorner",Main).CornerRadius=UDim.new(0,14)
+Instance.new("UICorner",Main)
 
 local Title=Instance.new("TextLabel",Main)
 Title.Size=UDim2.new(1,0,0,40)
@@ -123,63 +122,46 @@ end
 local SpeedBtn=makeBtn("Speed",50)
 local JumpBtn=makeBtn("Jump",95)
 local GravBtn=makeBtn("Gravity",140)
-local EspBtn=makeBtn("ESP",185)
-local InfBtn=makeBtn("Infinite Jump",230)
-local StealBtn=makeBtn("Auto Steal",275)
+local InfBtn=makeBtn("Infinite Jump",185)
+local StealBtn=makeBtn("Auto Steal",230)
 
 -------------------------
 -- TOGGLES
 -------------------------
 SpeedBtn.MouseButton1Click:Connect(function()
-    speedOn=not speedOn
+    speedOn = not speedOn
     SpeedBtn.BackgroundColor3 = speedOn and Color3.fromRGB(0,255,0) or Color3.fromRGB(10,10,10)
-    hum.WalkSpeed = speedOn and speedValue or 16
 end)
 
 JumpBtn.MouseButton1Click:Connect(function()
-    jumpOn=not jumpOn
+    jumpOn = not jumpOn
     JumpBtn.BackgroundColor3 = jumpOn and Color3.fromRGB(0,255,0) or Color3.fromRGB(10,10,10)
-    hum.JumpPower = jumpOn and jumpValue or 50
 end)
 
 GravBtn.MouseButton1Click:Connect(function()
-    gravityOn=not gravityOn
+    gravityOn = not gravityOn
     GravBtn.BackgroundColor3 = gravityOn and Color3.fromRGB(0,255,0) or Color3.fromRGB(10,10,10)
-    workspace.Gravity = gravityOn and gravityValue or 196.2
+end)
+
+InfBtn.MouseButton1Click:Connect(function()
+    infiniteJumpOn = not infiniteJumpOn
+    InfBtn.BackgroundColor3 = infiniteJumpOn and Color3.fromRGB(0,255,0) or Color3.fromRGB(10,10,10)
+end)
+
+StealBtn.MouseButton1Click:Connect(function()
+    autoStealOn = not autoStealOn
+    StealBtn.BackgroundColor3 = autoStealOn and Color3.fromRGB(0,255,0) or Color3.fromRGB(10,10,10)
 end)
 
 -------------------------
--- ESP
+-- 🔁 FORCE APPLY LOOP (REAL FIX)
 -------------------------
-local function createESP(p)
-    if p==player then return end
-    local function apply(c)
-        if c:FindFirstChild("Head") and not c.Head:FindFirstChild("ESP") then
-            local h=Instance.new("Highlight",c)
-            h.Name="ESP"
-            h.FillColor=Color3.fromRGB(0,255,0)
-            h.OutlineColor=Color3.fromRGB(255,255,255)
-        end
+RunService.Heartbeat:Connect(function()
+    if hum then
+        hum.WalkSpeed = speedOn and speedValue or 16
+        hum.JumpPower = jumpOn and jumpValue or 50
     end
-    if p.Character then apply(p.Character) end
-    p.CharacterAdded:Connect(apply)
-end
-
-EspBtn.MouseButton1Click:Connect(function()
-    espOn=not espOn
-    EspBtn.BackgroundColor3 = espOn and Color3.fromRGB(0,255,0) or Color3.fromRGB(10,10,10)
-    if espOn then
-        for _,p in pairs(Players:GetPlayers()) do
-            createESP(p)
-        end
-    else
-        for _,p in pairs(Players:GetPlayers()) do
-            if p.Character then
-                local h=p.Character:FindFirstChild("ESP")
-                if h then h:Destroy() end
-            end
-        end
-    end
+    workspace.Gravity = gravityOn and gravityValue or 196.2
 end)
 
 -------------------------
@@ -191,54 +173,59 @@ UIS.JumpRequest:Connect(function()
     end
 end)
 
-InfBtn.MouseButton1Click:Connect(function()
-    infiniteJumpOn=not infiniteJumpOn
-    InfBtn.BackgroundColor3 = infiniteJumpOn and Color3.fromRGB(0,255,0) or Color3.fromRGB(10,10,10)
-end)
-
 -------------------------
--- AUTO STEAL (FIXED)
+-- 🧠 AUTO STEAL (REMOTE EVENT VERSION)
 -------------------------
-local stealRange=10
+local stealRange = 15
 
-local function trySteal()
-    if not autoStealOn or not hrp then return end
-    for _,obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("ProximityPrompt") then
-            local part=obj.Parent
-            if part and part:IsA("BasePart") then
-                if (hrp.Position-part.Position).Magnitude<=stealRange then
-                    pcall(function() fireproximityprompt(obj) end)
-                end
-            end
-        end
-        if obj:IsA("ClickDetector") then
-            local part=obj.Parent
-            if part and part:IsA("BasePart") then
-                if (hrp.Position-part.Position).Magnitude<=stealRange then
-                    pcall(function() fireclickdetector(obj) end)
-                end
-            end
-        end
-        if obj:IsA("BasePart") and obj.CanTouch then
-            if (hrp.Position-obj.Position).Magnitude<=5 then
-                pcall(function()
-                    firetouchinterest(hrp,obj,0)
-                    firetouchinterest(hrp,obj,1)
-                end)
-            end
-        end
+-- find all RemoteEvents
+local RemoteEvents = {}
+for _,v in ipairs(ReplicatedStorage:GetDescendants()) do
+    if v:IsA("RemoteEvent") then
+        table.insert(RemoteEvents, v)
     end
 end
 
 task.spawn(function()
     while true do
-        if autoStealOn then trySteal() end
-        task.wait(0.3)
-    end
-end)
+        if autoStealOn and hrp then
+            for _,obj in ipairs(workspace:GetDescendants()) do
+                if obj:IsA("BasePart") then
+                    if (hrp.Position - obj.Position).Magnitude <= stealRange then
+                        
+                        -- Fire all remotes (server pickup)
+                        for _,remote in ipairs(RemoteEvents) do
+                            pcall(function()
+                                remote:FireServer(obj)
+                                remote:FireServer(obj.Name)
+                                remote:FireServer(obj.Parent)
+                            end)
+                        end
 
-StealBtn.MouseButton1Click:Connect(function()
-    autoStealOn=not autoStealOn
-    StealBtn.BackgroundColor3 = autoStealOn and Color3.fromRGB(0,255,0) or Color3.fromRGB(10,10,10)
+                        -- ProximityPrompt fallback
+                        for _,pp in ipairs(obj:GetDescendants()) do
+                            if pp:IsA("ProximityPrompt") then
+                                pcall(function() fireproximityprompt(pp) end)
+                            end
+                        end
+
+                        -- ClickDetector fallback
+                        for _,cd in ipairs(obj:GetDescendants()) do
+                            if cd:IsA("ClickDetector") then
+                                pcall(function() fireclickdetector(cd) end)
+                            end
+                        end
+
+                        -- Touch fallback
+                        pcall(function()
+                            firetouchinterest(hrp,obj,0)
+                            firetouchinterest(hrp,obj,1)
+                        end)
+
+                    end
+                end
+            end
+        end
+        task.wait(0.25)
+    end
 end)
