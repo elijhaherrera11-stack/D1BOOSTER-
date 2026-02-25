@@ -12,10 +12,10 @@ local LP = Players.LocalPlayer
 local Mouse = LP:GetMouse()
 
 --// SETTINGS
-local speedValue = 30
+local speedValue = 28
 local jumpValue = 120
 local gravityValue = 40
-local KEY = "2026FREE"
+local KEY = "D1 FREE"
 
 --// STATES
 local speedOn=false
@@ -103,7 +103,7 @@ local function toggleEffect(btn,state)
 end
 
 -- Buttons
-local SpeedBtn = makeBtn("⚡ Speed",70)
+local SpeedBtn = makeBtn("⚡ Speed",28)
 local JumpBtn = makeBtn("🦘 Jump",120)
 local GravBtn = makeBtn("🌍 Gravity",170)
 local InfJumpBtn = makeBtn("♾ Infinite Jump",220)
