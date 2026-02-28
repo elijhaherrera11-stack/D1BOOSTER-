@@ -1,135 +1,130 @@
--- Steal a Brainrot GUI Script
--- Clean Build | Mobile Friendly | Respawn Safe
+-- D1 BOOSTER 🚀 v4
+-- Full Stable Build
 
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
 local LP = Players.LocalPlayer
 
--- STATES
+-- ===== STATES =====
 local speedOn = false
-local infJump = false
-local speedValue = 16
+local jumpOn = false
+local gravityOn = false
+local espOn = false
+local freezeOn = false
 
--- GUI
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "BrainrotGUI"
-ScreenGui.Parent = game.CoreGui
+local speedValue = 30
+local jumpValue = 120
+local normalJump = 50
 
-local Main = Instance.new("Frame", ScreenGui)
-Main.Size = UDim2.new(0, 280, 0, 260)
-Main.Position = UDim2.new(0.5, -140, 0.5, -130)
-Main.BackgroundColor3 = Color3.fromRGB(12,12,12)
-Main.Active = true
-Main.Draggable = true
-Instance.new("UICorner", Main).CornerRadius = UDim.new(0,16)
+local gravityValue = 40
+local normalGravity = workspace.Gravity
 
-local stroke = Instance.new("UIStroke", Main)
-stroke.Color = Color3.fromRGB(0,255,140)
-stroke.Thickness = 1
-stroke.Transparency = 0.5
+local speedConn
+local savedCFrame = nil
 
--- TITLE
-local Title = Instance.new("TextLabel", Main)
-Title.Size = UDim2.new(1,0,0,40)
-Title.BackgroundTransparency = 1
-Title.Text = "STEAL A BRAINROT"
-Title.TextColor3 = Color3.fromRGB(0,255,140)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 18
-
--- UI LIST
-local Layout = Instance.new("UIListLayout", Main)
-Layout.Padding = UDim.new(0,10)
-Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-Layout.VerticalAlignment = Enum.VerticalAlignment.Top
-Layout.FillDirection = Enum.FillDirection.Vertical
-Layout.SortOrder = Enum.SortOrder.LayoutOrder
-Layout.Parent = Main
-Layout:GetPropertyChangedSignal("AbsoluteContentSize")
-
-Title.LayoutOrder = 1
-
--- CONTAINER
-local Container = Instance.new("Frame", Main)
-Container.Size = UDim2.new(1,-20,1,-60)
-Container.BackgroundTransparency = 1
-Container.LayoutOrder = 2
-
-local CLayout = Instance.new("UIListLayout", Container)
-CLayout.Padding = UDim.new(0,10)
-CLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-CLayout.Parent = Container
-
--- BUTTON TEMPLATE
-local function createButton(text)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1,0,0,40)
-    btn.BackgroundColor3 = Color3.fromRGB(30,30,30)
-    btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(255,255,255)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 14
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,10)
-    return btn
+-- ===== CHAR FUNCS =====
+local function getChar()
+    return LP.Character or LP.CharacterAdded:Wait()
 end
 
--- SPEED TOGGLE
-local SpeedBtn = createButton("Speed: OFF")
-SpeedBtn.Parent = Container
-
--- SPEED SLIDER FRAME
-local SliderFrame = Instance.new("Frame", Container)
-SliderFrame.Size = UDim2.new(1,0,0,50)
-SliderFrame.BackgroundTransparency = 1
-
-local SliderBar = Instance.new("Frame", SliderFrame)
-SliderBar.Size = UDim2.new(1,0,0,8)
-SliderBar.Position = UDim2.new(0,0,0.5,-4)
-SliderBar.BackgroundColor3 = Color3.fromRGB(30,30,30)
-Instance.new("UICorner", SliderBar).CornerRadius = UDim.new(0,10)
-
-local SliderFill = Instance.new("Frame", SliderBar)
-SliderFill.Size = UDim2.new(0,0,1,0)
-SliderFill.BackgroundColor3 = Color3.fromRGB(0,255,140)
-Instance.new("UICorner", SliderFill).CornerRadius = UDim.new(0,10)
-
-local SliderBtn = Instance.new("TextButton", SliderBar)
-SliderBtn.Size = UDim2.new(1,0,1,0)
-SliderBtn.BackgroundTransparency = 1
-SliderBtn.Text = ""
-
--- INF JUMP BUTTON
-local JumpBtn = createButton("Infinite Jump: OFF")
-JumpBtn.Parent = Container
-
--- FUNCTIONS
 local function getHumanoid()
-    local char = LP.Character
-    if char then
-        return char:FindFirstChildOfClass("Humanoid")
-    end
+    return getChar():WaitForChild("Humanoid")
 end
 
--- SPEED TOGGLE
-SpeedBtn.MouseButton1Click:Connect(function()
-    speedOn = not speedOn
-    if speedOn then
-        SpeedBtn.Text = "Speed: ON"
-        SpeedBtn.BackgroundColor3 = Color3.fromRGB(0,255,140)
-        SpeedBtn.TextColor3 = Color3.fromRGB(0,0,0)
-    else
-        SpeedBtn.Text = "Speed: OFF"
-        SpeedBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
-        SpeedBtn.TextColor3 = Color3.fromRGB(255,255,255)
-        local hum = getHumanoid()
-        if hum then hum.WalkSpeed = 16 end
-    end
-end)
+local function getHRP()
+    return getChar():WaitForChild("HumanoidRootPart")
+end
 
--- SLIDER LOGIC
+-- ===== GUI =====
+local gui = Instance.new("ScreenGui")
+gui.Name = "D1BoosterGUI"
+pcall(function() gui.Parent = game.CoreGui end)
+
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0,380,0,560)
+main.Position = UDim2.new(0.5,-190,0.5,-280)
+main.BackgroundColor3 = Color3.fromRGB(10,10,10)
+main.Active = true
+main.Draggable = true
+Instance.new("UICorner", main).CornerRadius = UDim.new(0,18)
+
+local stroke = Instance.new("UIStroke", main)
+stroke.Color = Color3.fromRGB(255,255,255)
+stroke.Thickness = 1
+stroke.Transparency = 0.3
+
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1,0,0,50)
+title.BackgroundTransparency = 1
+title.Text = "D1 BOOSTER 🚀"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
+title.TextColor3 = Color3.fromRGB(255,255,255)
+
+local container = Instance.new("Frame", main)
+container.Size = UDim2.new(1,0,1,-60)
+container.Position = UDim2.new(0,0,0,60)
+container.BackgroundTransparency = 1
+
+local layout = Instance.new("UIListLayout", container)
+layout.Padding = UDim.new(0,10)
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+local function makeButton(text)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(0.9,0,0,45)
+    b.BackgroundColor3 = Color3.fromRGB(25,25,25)
+    b.Text = text
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 15
+    b.TextColor3 = Color3.fromRGB(255,255,255)
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0,10)
+    b.Parent = container
+    return b
+end
+
+local function makeLabel(text)
+    local l = Instance.new("TextLabel")
+    l.Size = UDim2.new(0.9,0,0,28)
+    l.BackgroundTransparency = 1
+    l.Text = text
+    l.Font = Enum.Font.GothamBold
+    l.TextSize = 14
+    l.TextColor3 = Color3.fromRGB(255,255,255)
+    l.TextXAlignment = Enum.TextXAlignment.Left
+    l.Parent = container
+    return l
+end
+
+-- ===== UI =====
+local speedBtn = makeButton("⚡ Speed: OFF")
+local speedLabel = makeLabel("Speed Power: 30")
+
+-- Slider
+local sliderFrame = Instance.new("Frame", container)
+sliderFrame.Size = UDim2.new(0.9,0,0,12)
+sliderFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+Instance.new("UICorner", sliderFrame).CornerRadius = UDim.new(1,0)
+
+local sliderFill = Instance.new("Frame", sliderFrame)
+sliderFill.Size = UDim2.new(0.3,0,1,0)
+sliderFill.BackgroundColor3 = Color3.fromRGB(0,150,255)
+Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(1,0)
+
+local jumpBtn = makeButton("🦘 Jump: OFF")
+local gravityBtn = makeButton("🌍 Gravity: OFF")
+local freezeBtn = makeButton("🧊 Freeze Anim: OFF")
+local espBtn = makeButton("👁 ESP: OFF")
+local setTpBtn = makeButton("📍 Set Teleport")
+local tpBtn = makeButton("🚀 Teleport")
+
+-- ===== SLIDER LOGIC =====
 local dragging = false
+local minSpeed = 10
+local maxSpeed = 60
 
-SliderBtn.InputBegan:Connect(function(input)
+sliderFrame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
     end
@@ -141,46 +136,163 @@ UIS.InputEnded:Connect(function(input)
     end
 end)
 
-UIS.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        local pos = (input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X
-        pos = math.clamp(pos,0,1)
-        SliderFill.Size = UDim2.new(pos,0,1,0)
-        speedValue = math.floor(16 + (pos * 19)) -- 16 to 35
-        local hum = getHumanoid()
-        if speedOn and hum then
-            hum.WalkSpeed = speedValue
-        end
+RunService.RenderStepped:Connect(function()
+    if dragging then
+        local mouse = UIS:GetMouseLocation()
+        local pos = (mouse.X - sliderFrame.AbsolutePosition.X) / sliderFrame.AbsoluteSize.X
+        pos = math.clamp(pos, 0, 1)
+        sliderFill.Size = UDim2.new(pos,0,1,0)
+        speedValue = math.floor(minSpeed + (maxSpeed - minSpeed) * pos)
+        speedLabel.Text = "Speed Power: "..speedValue
     end
 end)
 
--- INF JUMP TOGGLE
-JumpBtn.MouseButton1Click:Connect(function()
-    infJump = not infJump
-    if infJump then
-        JumpBtn.Text = "Infinite Jump: ON"
-        JumpBtn.BackgroundColor3 = Color3.fromRGB(0,255,140)
-        JumpBtn.TextColor3 = Color3.fromRGB(0,0,0)
+-- ===== LOGIC =====
+
+-- ⚡ Speed (force movement)
+speedBtn.MouseButton1Click:Connect(function()
+    speedOn = not speedOn
+    local hum = getHumanoid()
+    local hrp = getHRP()
+
+    if speedOn then
+        speedBtn.Text = "⚡ Speed: ON"
+        speedBtn.BackgroundColor3 = Color3.fromRGB(0,150,0)
+
+        if speedConn then speedConn:Disconnect() end
+        speedConn = RunService.RenderStepped:Connect(function()
+            if hum.MoveDirection.Magnitude > 0 then
+                hrp.Velocity = Vector3.new(
+                    hum.MoveDirection.X * speedValue * 1.2,
+                    hrp.Velocity.Y,
+                    hum.MoveDirection.Z * speedValue * 1.2
+                )
+            end
+        end)
     else
-        JumpBtn.Text = "Infinite Jump: OFF"
-        JumpBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
-        JumpBtn.TextColor3 = Color3.fromRGB(255,255,255)
+        speedBtn.Text = "⚡ Speed: OFF"
+        speedBtn.BackgroundColor3 = Color3.fromRGB(25,25,25)
+        if speedConn then speedConn:Disconnect() end
     end
 end)
 
--- INF JUMP LOGIC
-UIS.JumpRequest:Connect(function()
-    if infJump then
-        local hum = getHumanoid()
-        if hum and hum:GetState() ~= Enum.HumanoidStateType.Freefall then
-            hum:ChangeState(Enum.HumanoidStateType.Jumping)
+-- 🦘 Jump
+jumpBtn.MouseButton1Click:Connect(function()
+    jumpOn = not jumpOn
+    local hum = getHumanoid()
+    if jumpOn then
+        hum.JumpPower = jumpValue
+        jumpBtn.Text = "🦘 Jump: ON"
+        jumpBtn.BackgroundColor3 = Color3.fromRGB(0,150,0)
+    else
+        hum.JumpPower = normalJump
+        jumpBtn.Text = "🦘 Jump: OFF"
+        jumpBtn.BackgroundColor3 = Color3.fromRGB(25,25,25)
+    end
+end)
+
+-- 🌍 Gravity
+gravityBtn.MouseButton1Click:Connect(function()
+    gravityOn = not gravityOn
+    if gravityOn then
+        workspace.Gravity = gravityValue
+        gravityBtn.Text = "🌍 Gravity: ON"
+        gravityBtn.BackgroundColor3 = Color3.fromRGB(0,150,0)
+    else
+        workspace.Gravity = normalGravity
+        gravityBtn.Text = "🌍 Gravity: OFF"
+        gravityBtn.BackgroundColor3 = Color3.fromRGB(25,25,25)
+    end
+end)
+
+-- 🧊 Freeze (animation only)
+freezeBtn.MouseButton1Click:Connect(function()
+    freezeOn = not freezeOn
+    local hum = getHumanoid()
+    if freezeOn then
+        freezeBtn.Text = "🧊 Freeze Anim: ON"
+        freezeBtn.BackgroundColor3 = Color3.fromRGB(0,150,0)
+        for _,track in pairs(hum:GetPlayingAnimationTracks()) do
+            track:AdjustSpeed(0)
+        end
+    else
+        freezeBtn.Text = "🧊 Freeze Anim: OFF"
+        freezeBtn.BackgroundColor3 = Color3.fromRGB(25,25,25)
+        for _,track in pairs(hum:GetPlayingAnimationTracks()) do
+            track:AdjustSpeed(1)
         end
     end
 end)
 
--- RESPAWN SAFE
-LP.CharacterAdded:Connect(function(char)
+-- 📍 Teleport system
+setTpBtn.MouseButton1Click:Connect(function()
+    local hrp = getHRP()
+    savedCFrame = hrp.CFrame
+    setTpBtn.Text = "📍 Teleport Set"
+end)
+
+tpBtn.MouseButton1Click:Connect(function()
+    if savedCFrame then
+        getHRP().CFrame = savedCFrame
+    end
+end)
+
+-- 👁 ESP
+local espCache = {}
+
+local function createESP(plr)
+    if plr == LP then return end
+    if espCache[plr] then return end
+
+    local box = Instance.new("BoxHandleAdornment")
+    box.Size = Vector3.new(4,6,4)
+    box.Color3 = Color3.fromRGB(255,255,255)
+    box.Transparency = 0.6
+    box.AlwaysOnTop = true
+    box.ZIndex = 5
+    box.Parent = game.CoreGui
+    espCache[plr] = box
+end
+
+RunService.RenderStepped:Connect(function()
+    if not espOn then return end
+    for _,plr in pairs(Players:GetPlayers()) do
+        if plr ~= LP and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            createESP(plr)
+            espCache[plr].Adornee = plr.Character.HumanoidRootPart
+        end
+    end
+end)
+
+espBtn.MouseButton1Click:Connect(function()
+    espOn = not espOn
+    if espOn then
+        espBtn.Text = "👁 ESP: ON"
+        espBtn.BackgroundColor3 = Color3.fromRGB(0,150,0)
+    else
+        espBtn.Text = "👁 ESP: OFF"
+        espBtn.BackgroundColor3 = Color3.fromRGB(25,25,25)
+        for _,box in pairs(espCache) do box:Destroy() end
+        espCache = {}
+    end
+end)
+
+-- 🔁 Respawn Safe
+LP.CharacterAdded:Connect(function()
     task.wait(1)
-    local hum = char:WaitForChild("Humanoid")
-    if speedOn then hum.WalkSpeed = speedValue end
+    local hum = getHumanoid()
+
+    hum.JumpPower = jumpOn and jumpValue or normalJump
+    workspace.Gravity = gravityOn and gravityValue or normalGravity
+
+    if speedConn then
+        speedConn:Disconnect()
+        speedOn = false
+        speedBtn.Text = "⚡ Speed: OFF"
+        speedBtn.BackgroundColor3 = Color3.fromRGB(25,25,25)
+    end
+
+    freezeOn = false
+    freezeBtn.Text = "🧊 Freeze Anim: OFF"
+    freezeBtn.BackgroundColor3 = Color3.fromRGB(25,25,25)
 end)
